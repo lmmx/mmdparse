@@ -1,0 +1,27 @@
+-the file symlist.mmt contains a standardised list describing the .mmd file format
+-it can be read as follows:
+-:each line must have two pairs of square brackets (at least one of which must be filled)
+-,:the first pair of square brackets indicates a pattern at the start of a line
+-,:the second pair of square brackets indicates a pattern at the end of a line
+-,:if a pattern takes up the entirety of a line, then we set the end-of-line pattern to 'x'
+-..this indicates _not_ to understand the two brackets as start _and_ end
+-.,but instead to take the first pattern as spanning start _to_ end
+-.,as such the "-~==~-" pattern should match the entire line and "" should match an empty line
+-,:if a pattern _must_ follow the one above, its first bracket is preceded by a comma
+-,:if a pattern will follow the one above (but not necessarily immediately), no comma precedes the first bracket
+-..put another way, a comma preceding the bracket means "you cannot have this symbol without the preceding line's symbol"
+-,:some comma-preceded patterns have the wildcard match on the preceding line
+-,which simply means that they need any valid line before them (as opposed to a blank line)
+-,:the only other constraint on comma-preceded patterns is that their preceding line must be in the same 'paragraph'
+-..i.e. no intervening blank lines
+-,:the nearest line is matched in cases where patterns can match non-directly preceding lines' patterns (common sense)
+-,:the symbols should be matched 'greedily',
+-,e.g. a line starting "-,:" is a match for "-,:" not "-," or "-"
+
+-the symbols outlined in this file are unlabelled (partly due to repetition),
+-,instead semantics of their usage are outlined exhaustively in the Python module 'symsem.py'
+
+-the symsem module (specifically its scansym method) requires exactly 2 pairs of square brackets,
+-,and they must be consecutive (i.e. "][" in the middle of the line)
+-,so don't update the 'symlist.mmt' table with new entries with more than this
+-,or with characters between the pairs! scansym() will error out if so
