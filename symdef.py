@@ -7,7 +7,12 @@
 # N.B. 'symspec' is 'spec' as in 'specification' not
 # 'special', which here denotes four particular values
 
-def m_wc(symbol, target, posfunc=None):
+class matcher:
+    def __init__(self, symbol, posfunc):
+        self.symbol = symbol
+        self.posfunc = posfunc
+
+def m_wc(symbol, posfunc):
     """Special match function: hyphen with wildcard
     (i.e. hyphen then anything - note that in reality
     this only works at the start of the line, which 
@@ -19,27 +24,31 @@ def m_wc(symbol, target, posfunc=None):
     in this notation spec I wanted to express that
     other patterns mean 'this and only this' whereas
     this wildcard has multiple meanings). TBC maybe."""
-    m = posfunc(target, '-')
+    m = matcher(symbol='-', posfunc=posfunc)
     return m
 
-def m_x(symbol, target, posfunc=None):
+def m_x(symbol, posfunc):
     """Special match function: omit pattern entirely
     (i.e. use the other pattern to match entire line).
     Stated more clearly, don't try and match start and
     end separately, instead match entire line."""
-    # Signal lack of a match by returning 'None'
-    pass
+    # weird but comprehensible: use str.__ne__ to mean
+    # "don't match this [pre/suffix], only the other
+    m = matcher(symbol=None, posfunc=str.__ne__)
+    return m
 
-def m_sp(symbol, target, posfunc=None):
+def m_sp(symbol, posfunc):
     """Special match function: non-matching (i.e. only
     use the other pattern, to match the other end)"""
-    # how to handle?
+    m = matcher(symbol=None, posfunc=None)
+    return m
 
-def m_em(symbol, target, posfunc=None):
+def m_em(symbol, posfunc):
     """Special match function: empty string match (i.e.
     to be used in combination with the pattern omission
     match - 'x' - to specify a match to a blank line)"""
-    # ...
+    m = matcher(symbol=symbol, posfunc=str.__eq__)
+    return m
 
 specials = {'-*': m_wc,'x': m_x,' ': m_sp, '': m_em}
 
@@ -47,10 +56,10 @@ def specialmatch(symbol, target, posfunc=None):
     m = specials[symbol](symbol, target, posfunc)
     return m
 
-def symmatch(symbol, target, posfunc=None):
-    if symbol.special:
-        m = specialmatch(source, target, where=where)
-        return m
+def symmatch(sym, target, posfunc=None):
+    # TODO: think carefully about pre/suff matching
+    if sym.special:
+        specialmatch(sym.symbol, target)
     # ...
 
 class symdef:
