@@ -97,30 +97,29 @@ def linematch(target, mpre, msuff):
     #
     # the other two special cases are not treated
     # differently to simple match, so no problem
-    pm = ps = None
     if mpre.posfunc is str.__ne__:
         # rely on msuff to match
         # signal so by leaving pm equal to 'None'
-        pass
+        pm = None
     elif mpre.posfunc is None:
         # it always 'matches'
         pm = True
     else:
         pm = mpre.posfunc(target, mpre.symbol)
     if msuff.posfunc is str.__ne__:
+        # both prefix & suffix pattern cannot be [x]
+        if pm is None:
+            raise ValueError("Error: can't match\
+            '[x]' to both start and end of line. \
+            Fix the symbol list ('symlist.mmt').")
         # rely on mpre to match
-        pass
+        ps = None
     elif msuff.posfunc is None:
         # [100 emoji]
         ps = True
     else:
         ps = msuff.posfunc(target, msuff.symbol)
-    # if both pre & post were [x] raise an error!
-    if (pm is ps is None):
-        raise ValueError("Config error: both start\
-        and end of line symbols can't be '[x]'. \
-        Fix the symbol list ('symlist.mmt').")
-    elif ((pm is None) or (ps is None)):
+    if ((pm is None) or (ps is None)):
         if pm is None:
             return ps
         else:
@@ -144,6 +143,13 @@ class symdef:
         ms = symmatch(self.suff, str.endswith)
         m = linematch(target, mp, ms)
         return m
+    
+    # in this way the line "-[][x]" becomes:
+    # linematch('', m_em('', str.startswith),
+    #               m_x('x', str.endswith))
+    # ==> True
+    # i.e. it matches the empty line ('')
+    # the pass in 
 
 class syminterp:
     """Interpret the match pattern symbols.
