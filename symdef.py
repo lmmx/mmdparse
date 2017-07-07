@@ -102,7 +102,7 @@ def linematch(target, mpre, msuff):
         # rely on msuff to match
         # signal so by leaving pm equal to 'None'
         pass
-    else if mpre.posfunc is None:
+    elif mpre.posfunc is None:
         # it always 'matches'
         pm = True
     else:
@@ -110,7 +110,7 @@ def linematch(target, mpre, msuff):
     if msuff.posfunc is str.__ne__:
         # rely on mpre to match
         pass
-    else if msuff.posfunc is None:
+    elif msuff.posfunc is None:
         # [100 emoji]
         ps = True
     else:
@@ -120,7 +120,7 @@ def linematch(target, mpre, msuff):
         raise ValueError("Config error: both start\
         and end of line symbols can't be '[x]'. \
         Fix the symbol list ('symlist.mmt').")
-    else if ((pm is None) or (ps is None)):
+    elif ((pm is None) or (ps is None)):
         if pm is None:
             return ps
         else:
