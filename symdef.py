@@ -103,6 +103,7 @@ def linematch(target, mpre, msuff):
         # signal so by leaving pm equal to 'None'
         pass
     else if mpre.posfunc is None:
+        # it always 'matches'
         pm = True
     else:
         pm = mpre.posfunc(target, mpre.symbol)
@@ -110,6 +111,7 @@ def linematch(target, mpre, msuff):
         # rely on mpre to match
         pass
     else if msuff.posfunc is None:
+        # [100 emoji]
         ps = True
     else:
         ps = msuff.posfunc(target, msuff.symbol)
