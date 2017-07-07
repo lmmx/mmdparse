@@ -85,7 +85,6 @@ def symmatch(sym, posfunc=None):
 def linematch(target, mpre, msuff):
     """Interpret both matcher items to return a
     boolean [whether the line matches the pattern]
-    and a line index for the pattern(s) if so.
     
     'target' is a string, while 'mpre' and 'msuff'
     should both be <matcher> objects."""
