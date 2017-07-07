@@ -1,6 +1,6 @@
+#spin-log⠶src⠶parse⠶symcyl.py
 
-
-from symsem import mmddict
+from symsem import symcyl as sc
 
 # hard coded symbol list
 symlist = 'symlist.mmt'
@@ -39,8 +39,8 @@ def scansymranges(mmtlines, pranges):
 def parsemmt(mmtlines):
     pranges = scanpranges(mmtlines)
     symsets = scansymranges(mmtlines, pranges)
-    symdict = {'pranges': pranges, 'symsets': symsets}
-    return symdict
+    symcyl = sc(symsets)
+    return symcyl
 
 def scansymlist():
     """Load symlist and return as a dictionary"""
@@ -51,7 +51,8 @@ def scansymlist():
 
 def buildAST(mmtlines):
     """Pass in a list of lines from an .mmt file
-    and return an AST of the .mmd format"""
+    and return an AST of the .mmd format, as
+    defined in the symsem module"""
     linecount = len(mmtlines)
     # NB: prototype will just return the no. of lines
     # until the dictionary of symbols is built in mmdcyl.py
