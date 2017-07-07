@@ -148,8 +148,7 @@ class symdef:
     # linematch('', m_em('', str.startswith),
     #               m_x('x', str.endswith))
     # ==> True
-    # i.e. it matches the empty line ('')
-    # the pass in 
+    # when used to match the empty line ('')
 
 class syminterp:
     """Interpret the match pattern symbols.
