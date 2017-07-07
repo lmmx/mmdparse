@@ -8,6 +8,10 @@
 # 'special', which here denotes four particular values
 
 class matcher:
+    """Store the info required to make a match
+    in combination with another matcher [for the
+    start and end of a line, or to annul one] in
+    a call to the match function."""
     def __init__(self, symbol, posfunc):
         self.symbol = symbol
         self.posfunc = posfunc
@@ -52,15 +56,79 @@ def m_em(symbol, posfunc):
 
 specials = {'-*': m_wc,'x': m_x,' ': m_sp, '': m_em}
 
-def specialmatch(symbol, target, posfunc=None):
-    m = specials[symbol](symbol, target, posfunc)
+def specialmatch(symbol, posfunc=None):
+    """Some symbols are special, and so they receive
+    a matcher class according to the functions stored
+    in the 'specials' dict (whose keys are symbols)."""
+    m = specials[symbol](symbol, posfunc)
     return m
 
-def symmatch(sym, target, posfunc=None):
-    # TODO: think carefully about pre/suff matching
+def simplematch(symbol, posfunc=None):
+    """Let symbols be symbols, no funny business. Pass
+    args unaltered to the matcher class constructor."""
+    m = matcher(symbol=symbol, posfunc=posfunc)
+    return m
+
+def symmatch(sym, posfunc=None):
+    """Function to create matcher objects for either
+    prefix or suffix symbols, ultimately to define
+    behaviour for the symdef class match method, to
+    take effect over an entire line. Precedence is
+    not handled here (management of whether a pattern
+    appears following another)."""
     if sym.special:
-        specialmatch(sym.symbol, target)
-    # ...
+        m = specialmatch(sym.symbol, posfunc)
+    else:
+        m = simplematch(sym.symbol, posfunc)
+    return m
+
+def linematch(target, mpre, msuff):
+    """Interpret both matcher items to return a
+    boolean [whether the line matches the pattern]
+    and a line index for the pattern(s) if so.
+    
+    'target' is a string, while 'mpre' and 'msuff'
+    should both be <matcher> objects."""
+    # series of checks to do before simple 'posfunc'
+    # positional match functions can be used:
+    # - if either symbol is [x], we ignore it
+    #   - it will have str.__ne__ as its posfunc
+    # - if either symbol is [ ], it always matches
+    #   - it will have 'None' as its posfunc
+    #
+    # the other two special cases are not treated
+    # differently to simple match, so no problem
+    pm = ps = None
+    if mpre.posfunc is str.__ne__:
+        # rely on msuff to match
+        # signal so by leaving pm equal to 'None'
+        pass
+    else if mpre.posfunc is None:
+        pm = True
+    else:
+        pm = mpre.posfunc(target, mpre.symbol)
+    if msuff.posfunc is str.__ne__:
+        # rely on mpre to match
+        pass
+    else if msuff.posfunc is None:
+        ps = True
+    else:
+        ps = msuff.posfunc(target, msuff.symbol)
+    # if both pre & post were [x] raise an error!
+    if (pm is ps is None):
+        raise ValueError("Config error: both start\
+        and end of line symbols can't be '[x]'. \
+        Fix the symbol list ('symlist.mmt').")
+    else if ((pm is None) or (ps is None)):
+        if pm is None:
+            return ps
+        else:
+            # ps is None
+            return pm
+    if pm and ps:
+        return True
+    else:
+        return False
 
 class symdef:
     """Defined behaviour for symbol parsing
@@ -71,9 +139,9 @@ class symdef:
         self.suff = syminterp(symspec.symsuff)
 
     def match(self, target):
-        mp = symmatch(self.pre, target)
-        ms = symmatch(self.suff, target)
-        m = symmatch()
+        mp = symmatch(self.pre, str.startswith)
+        ms = symmatch(self.suff, str.endswith)
+        m = linematch(target, mp, ms)
         return m
 
 class syminterp:
