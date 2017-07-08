@@ -25,8 +25,6 @@ class symspec:
     def __repr__(self):
         return "<symspec::prec:'{}', '{}'::'{}'>"\
             .format(self.prec, self.sympre, self.symsuff)
-    def get(self, key, default=None):
-        return self.__dict__.get(key, default)
 
 def scansyms(symset):
     """Parse the list of lines from the symlist.mmt ("symset")
